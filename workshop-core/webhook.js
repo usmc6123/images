@@ -61,11 +61,19 @@ const server = http.createServer((req, res) => {
       log('Building Docker image...');
       execSync(`cd ${WORKSPACE} && docker compose build workshop-backend`, { timeout: 600000 });
       execSync(`docker tag workspace-workshop-backend:latest workshop-ragnarok-workshop-backend:latest`);
-      log('Image tagged successfully');
+      log('Image built and tagged');
       try { execSync(`docker stop ragnarok-backend`, { timeout: 30000 }); } catch(e) {}
       try { execSync(`docker rm ragnarok-backend`, { timeout: 30000 }); } catch(e) {}
-      // Use WORKSPACE path since /mnt/d is mounted as /workspace in this container
-      execSync(`cd ${WORKSPACE} && docker compose up -d workshop-backend`, { timeout: 60000 });
+      execSync(`docker run -d \
+        --name ragnarok-backend \
+        --network workshop-ragnarok_default \
+        -p 4000:4000 \
+        -e PORT=4000 \
+        -e LEMON_SERVER_URL=http://lemon-server:8080 \
+        -e DB_PATH=/data/db/workshop.db \
+        -v /mnt/d/HomeServer/workshop-ragnarok/data:/data \
+        --restart unless-stopped \
+        workshop-ragnarok-workshop-backend:latest`, { timeout: 60000 });
       log('Container started successfully');
     } catch (e) {
       log(`ERROR during rebuild: ${e.message}`);
