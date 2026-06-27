@@ -64,7 +64,8 @@ const server = http.createServer((req, res) => {
       log('Image tagged successfully');
       try { execSync(`docker stop ragnarok-backend`, { timeout: 30000 }); } catch(e) {}
       try { execSync(`docker rm ragnarok-backend`, { timeout: 30000 }); } catch(e) {}
-      execSync(`cd /mnt/d/HomeServer/workshop-ragnarok && docker compose up -d workshop-backend`, { timeout: 60000 });
+      // Use WORKSPACE path since /mnt/d is mounted as /workspace in this container
+      execSync(`cd ${WORKSPACE} && docker compose up -d workshop-backend`, { timeout: 60000 });
       log('Container started successfully');
     } catch (e) {
       log(`ERROR during rebuild: ${e.message}`);
