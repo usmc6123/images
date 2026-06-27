@@ -1,0 +1,41 @@
+services:
+  lemon-server:
+    build:
+      context: ./lemon-server
+    container_name: lemon-server
+    restart: unless-stopped
+    volumes:
+      - /mnt/m/e9dfaf202d2b8b99988d2e87517b7a90eb73ad92/lemon-manuals:/data:ro
+
+  workshop-backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: ragnarok-backend
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - LEMON_SERVER_URL=http://lemon-server:8080
+      - DB_PATH=/data/db/workshop.db
+    volumes:
+      - /mnt/d/HomeServer/workshop-ragnarok/data:/data
+    depends_on:
+      - lemon-server
+
+  webhook:
+    build: /opt/workshop-webhook
+    container_name: workshop-webhook
+    working_dir: /app
+    volumes:
+      - /opt/workshop-webhook:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /mnt/d/HomeServer/workshop-ragnarok:/workspace
+      - /mnt/m:/mnt/m
+    environment:
+      - WEBHOOK_SECRET=ragnarok-webhook-secret
+      - PROJECT_DIR=/workspace
+    ports:
+      - "9001:9001"
+    restart: unless-stopped
