@@ -17,6 +17,8 @@ function restoreCoreFiles() {
     { url: `${CORE_RAW}/Dockerfile`, dest: `${WORKSPACE}/lemon-server/Dockerfile`, chmod: false },
     { url: `${CORE_RAW}/ingestion.js`, dest: `${WORKSPACE}/backend/ingestion.js`, chmod: false },
     { url: `${CORE_RAW}/post-rebuild.sh`, dest: `${WORKSPACE}/post-rebuild.sh`, chmod: true },
+    { url: `${CORE_RAW}/package-lock.json`, dest: `${WORKSPACE}/package-lock.json`, chmod: false },
+    { url: `${CORE_RAW}/backend-package-lock.json`, dest: `${WORKSPACE}/backend/package-lock.json`, chmod: false },
   ];
   for (const file of files) {
     try {
@@ -43,20 +45,17 @@ const server = http.createServer((req, res) => {
     res.writeHead(200);
     res.end('OK');
 
-    log('Webhook received — starting restore + rebuild...');
+    log('Webhook received - starting restore + rebuild...');
 
     try {
-      // Force reset any local changes then pull
       execSync(`cd ${WORKSPACE} && git reset --hard HEAD && git pull origin main`, { timeout: 60000 });
       log('Git pull complete');
     } catch (e) {
       log(`Git pull warning: ${e.message}`);
     }
 
-    // Always restore core files from images repo
     restoreCoreFiles();
 
-    // Rebuild Docker image and restart
     try {
       log('Building Docker image...');
       execSync(`cd ${WORKSPACE} && docker compose build workshop-backend`, { timeout: 600000 });
@@ -67,7 +66,6 @@ const server = http.createServer((req, res) => {
       log(`ERROR during docker build: ${e.message}`);
     }
 
-    // Run ingestion guard
     try {
       log('Running ingestion check...');
       execSync(`bash ${WORKSPACE}/post-rebuild.sh`, { timeout: 300000 });
