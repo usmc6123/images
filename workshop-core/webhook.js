@@ -19,6 +19,7 @@ function restoreCoreFiles() {
     { url: `${CORE_RAW}/post-rebuild.sh`, dest: `${WORKSPACE}/post-rebuild.sh`, chmod: true },
     { url: `${CORE_RAW}/package-lock.json`, dest: `${WORKSPACE}/package-lock.json`, chmod: false },
     { url: `${CORE_RAW}/backend-package-lock.json`, dest: `${WORKSPACE}/backend/package-lock.json`, chmod: false },
+    { url: `${CORE_RAW}/docker-compose.yml`, dest: `${WORKSPACE}/docker-compose.yml`, chmod: false },
   ];
   for (const file of files) {
     try {
@@ -59,15 +60,12 @@ const server = http.createServer((req, res) => {
     try {
       log('Building Docker image...');
       execSync(`cd ${WORKSPACE} && docker compose build workshop-backend`, { timeout: 600000 });
-      // Tag the built image with the workshop-ragnarok name so docker compose up works
       execSync(`docker tag workspace-workshop-backend:latest workshop-ragnarok-workshop-backend:latest`);
       log('Image tagged successfully');
-      // Stop and remove only ragnarok-backend
       try { execSync(`docker stop ragnarok-backend`, { timeout: 30000 }); } catch(e) {}
       try { execSync(`docker rm ragnarok-backend`, { timeout: 30000 }); } catch(e) {}
-      // Now docker compose up will use the newly tagged image
       execSync(`cd /mnt/d/HomeServer/workshop-ragnarok && docker compose up -d workshop-backend`, { timeout: 60000 });
-      log('Container started successfully under workshop-ragnarok stack');
+      log('Container started successfully');
     } catch (e) {
       log(`ERROR during rebuild: ${e.message}`);
     }
