@@ -60,7 +60,7 @@ const server = http.createServer((req, res) => {
       log('Building Docker image...');
       execSync(`cd ${WORKSPACE} && docker compose build workshop-backend`, { timeout: 600000 });
       log('Build complete, restarting container...');
-      execSync(`cd ${WORKSPACE} && docker compose up -d workshop-backend`, { timeout: 60000 });
+      execSync(`cd ${WORKSPACE} && docker compose up -d --force-recreate workshop-backend`, { timeout: 60000 });
       log('Container restarted successfully');
     } catch (e) {
       log(`ERROR during docker build: ${e.message}`);
