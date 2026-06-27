@@ -1,7 +1,5 @@
 const http = require('http');
-const crypto = require('crypto');
 const { execSync } = require('child_process');
-const fs = require('fs');
 const path = require('path');
 
 const PORT = 9001;
@@ -14,14 +12,12 @@ function log(msg) {
 
 function restoreCoreFiles() {
   log('Restoring protected core files from images repo...');
-
   const files = [
     { url: `${CORE_RAW}/lemon-website`, dest: `${WORKSPACE}/lemon-server/lemon-website`, chmod: true },
     { url: `${CORE_RAW}/Dockerfile`, dest: `${WORKSPACE}/lemon-server/Dockerfile`, chmod: false },
     { url: `${CORE_RAW}/ingestion.js`, dest: `${WORKSPACE}/backend/ingestion.js`, chmod: false },
     { url: `${CORE_RAW}/post-rebuild.sh`, dest: `${WORKSPACE}/post-rebuild.sh`, chmod: true },
   ];
-
   for (const file of files) {
     try {
       execSync(`mkdir -p ${path.dirname(file.dest)}`);
@@ -59,8 +55,8 @@ const server = http.createServer((req, res) => {
 
     log('Webhook received — starting restore + rebuild...');
     try {
-      // Pull latest code
-      execSync(`cd ${WORKSPACE} && git pull origin main`, { timeout: 60000 });
+      // Force reset any local changes then pull
+      execSync(`cd ${WORKSPACE} && git reset --hard HEAD && git pull origin main`, { timeout: 60000 });
       log('Git pull complete');
     } catch (e) {
       log(`Git pull warning: ${e.message}`);
