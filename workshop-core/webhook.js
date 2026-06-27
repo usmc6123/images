@@ -5,6 +5,7 @@ const path = require('path');
 const PORT = 9001;
 const WORKSPACE = '/workspace';
 const CORE_RAW = 'https://raw.githubusercontent.com/usmc6123/images/main/workshop-core';
+const IMAGE_NAME = 'workspace-workshop-backend';
 
 function log(msg) {
   console.log(`[${new Date().toISOString()}] ${msg}`);
@@ -60,11 +61,10 @@ const server = http.createServer((req, res) => {
       log('Building Docker image...');
       execSync(`cd ${WORKSPACE} && docker compose build workshop-backend`, { timeout: 600000 });
       log('Build complete - swapping container...');
-      // Stop and remove only ragnarok-backend, never touch lemon-server
       try { execSync(`docker stop ragnarok-backend`, { timeout: 30000 }); } catch(e) {}
       try { execSync(`docker rm ragnarok-backend`, { timeout: 30000 }); } catch(e) {}
-      // Start only ragnarok-backend using docker run directly
-      execSync(`docker run -d --name ragnarok-backend --network workshop-ragnarok_default -p 4000:4000 -e PORT=4000 -e LEMON_SERVER_URL=http://lemon-server:8080 -e DB_PATH=/data/db/workshop.db -v /mnt/d/HomeServer/workshop-ragnarok/data:/data --restart unless-stopped workshop-ragnarok-workshop-backend`, { timeout: 60000 });
+      log('Starting new container with new image...');
+      execSync(`docker run -d --name ragnarok-backend --network workspace_default -p 4000:4000 -e PORT=4000 -e LEMON_SERVER_URL=http://lemon-server:8080 -e DB_PATH=/data/db/workshop.db -v /mnt/d/HomeServer/workshop-ragnarok/data:/data --restart unless-stopped ${IMAGE_NAME}`, { timeout: 60000 });
       log('Container started successfully with new image');
     } catch (e) {
       log(`ERROR during rebuild: ${e.message}`);
