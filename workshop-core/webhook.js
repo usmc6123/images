@@ -64,7 +64,7 @@ const server = http.createServer((req, res) => {
       try { execSync(`docker stop ragnarok-backend`, { timeout: 30000 }); } catch(e) {}
       try { execSync(`docker rm ragnarok-backend`, { timeout: 30000 }); } catch(e) {}
       log('Starting new container with new image...');
-      execSync(`docker run -d --name ragnarok-backend --network workspace_default -p 4000:4000 -e PORT=4000 -e LEMON_SERVER_URL=http://lemon-server:8080 -e DB_PATH=/data/db/workshop.db -v /mnt/d/HomeServer/workshop-ragnarok/data:/data --restart unless-stopped ${IMAGE_NAME}`, { timeout: 60000 });
+      execSync(`docker run -d --name ragnarok-backend --network workshop-ragnarok_default -p 4000:4000 -e PORT=4000 -e LEMON_SERVER_URL=http://lemon-server:8080 -e DB_PATH=/data/db/workshop.db -v /mnt/d/HomeServer/workshop-ragnarok/data:/data --restart unless-stopped ${IMAGE_NAME}`, { timeout: 60000 });
       log('Container started successfully with new image');
     } catch (e) {
       log(`ERROR during rebuild: ${e.message}`);
