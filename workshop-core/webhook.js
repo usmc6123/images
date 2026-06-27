@@ -30,16 +30,6 @@ function restoreCoreFiles() {
   }
 }
 
-function runRebuild() {
-  log('Running post-rebuild.sh...');
-  try {
-    const out = execSync(`bash ${WORKSPACE}/post-rebuild.sh`, { timeout: 300000 });
-    log(out.toString());
-  } catch (e) {
-    log(`ERROR in post-rebuild.sh: ${e.message}`);
-  }
-}
-
 const server = http.createServer((req, res) => {
   if (req.method !== 'POST' || req.url !== '/webhook') {
     res.writeHead(404);
@@ -54,6 +44,7 @@ const server = http.createServer((req, res) => {
     res.end('OK');
 
     log('Webhook received — starting restore + rebuild...');
+
     try {
       // Force reset any local changes then pull
       execSync(`cd ${WORKSPACE} && git reset --hard HEAD && git pull origin main`, { timeout: 60000 });
@@ -65,8 +56,26 @@ const server = http.createServer((req, res) => {
     // Always restore core files from images repo
     restoreCoreFiles();
 
-    // Run rebuild
-    runRebuild();
+    // Rebuild Docker image and restart
+    try {
+      log('Building Docker image...');
+      execSync(`cd ${WORKSPACE} && docker compose build workshop-backend`, { timeout: 600000 });
+      log('Build complete, restarting container...');
+      execSync(`cd ${WORKSPACE} && docker compose up -d workshop-backend`, { timeout: 60000 });
+      log('Container restarted successfully');
+    } catch (e) {
+      log(`ERROR during docker build: ${e.message}`);
+    }
+
+    // Run ingestion guard
+    try {
+      log('Running ingestion check...');
+      execSync(`bash ${WORKSPACE}/post-rebuild.sh`, { timeout: 300000 });
+      log('Ingestion check complete');
+    } catch (e) {
+      log(`ERROR in post-rebuild.sh: ${e.message}`);
+    }
+
     log('Rebuild complete!');
   });
 });
