@@ -59,11 +59,12 @@ const server = http.createServer((req, res) => {
     try {
       log('Building Docker image...');
       execSync(`cd ${WORKSPACE} && docker compose build workshop-backend`, { timeout: 600000 });
-      log('Build complete - stopping and removing old container...');
-      try { execSync(`docker stop ragnarok-backend`, { timeout: 30000 }); } catch(e) { log('Stop warning: ' + e.message); }
-      try { execSync(`docker rm ragnarok-backend`, { timeout: 30000 }); } catch(e) { log('Remove warning: ' + e.message); }
-      log('Starting new container with new image...');
-      execSync(`cd ${WORKSPACE} && docker compose up -d workshop-backend`, { timeout: 60000 });
+      log('Build complete - swapping container...');
+      // Stop and remove only ragnarok-backend, never touch lemon-server
+      try { execSync(`docker stop ragnarok-backend`, { timeout: 30000 }); } catch(e) {}
+      try { execSync(`docker rm ragnarok-backend`, { timeout: 30000 }); } catch(e) {}
+      // Start only ragnarok-backend using docker run directly
+      execSync(`docker run -d --name ragnarok-backend --network workshop-ragnarok_default -p 4000:4000 -e PORT=4000 -e LEMON_SERVER_URL=http://lemon-server:8080 -e DB_PATH=/data/db/workshop.db -v /mnt/d/HomeServer/workshop-ragnarok/data:/data --restart unless-stopped workshop-ragnarok-workshop-backend`, { timeout: 60000 });
       log('Container started successfully with new image');
     } catch (e) {
       log(`ERROR during rebuild: ${e.message}`);
