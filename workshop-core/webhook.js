@@ -59,9 +59,12 @@ const server = http.createServer((req, res) => {
     try {
       log('Building Docker image...');
       execSync(`cd ${WORKSPACE} && docker compose build workshop-backend`, { timeout: 600000 });
-      log('Build complete - restarting container...');
-      execSync(`docker restart ragnarok-backend`, { timeout: 60000 });
-      log('Container restarted successfully');
+      log('Build complete - stopping and removing old container...');
+      try { execSync(`docker stop ragnarok-backend`, { timeout: 30000 }); } catch(e) { log('Stop warning: ' + e.message); }
+      try { execSync(`docker rm ragnarok-backend`, { timeout: 30000 }); } catch(e) { log('Remove warning: ' + e.message); }
+      log('Starting new container with new image...');
+      execSync(`cd ${WORKSPACE} && docker compose up -d workshop-backend`, { timeout: 60000 });
+      log('Container started successfully with new image');
     } catch (e) {
       log(`ERROR during rebuild: ${e.message}`);
     }
