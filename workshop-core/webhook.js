@@ -51,7 +51,7 @@ const server = http.createServer((req, res) => {
     log('Webhook received - starting restore + rebuild...');
 
     try {
-      execSync(`cd ${WORKSPACE} && git fetch origin main && git reset --hard origin/main && git clean -fd`, { timeout: 60000 });
+      execSync(`cd ${WORKSPACE} && git fetch origin main && git reset --hard origin/main && git clean -fd --exclude=data/`, { timeout: 60000 });
       log('Git pull complete');
     } catch (e) {
       log(`Git pull warning: ${e.message}`);
