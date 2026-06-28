@@ -20,6 +20,7 @@ function restoreCoreFiles() {
     { url: `${CORE_RAW}/package-lock.json`, dest: `${WORKSPACE}/package-lock.json`, chmod: false },
     { url: `${CORE_RAW}/backend-package-lock.json`, dest: `${WORKSPACE}/backend/package-lock.json`, chmod: false },
     { url: `${CORE_RAW}/docker-compose.yml`, dest: `${WORKSPACE}/docker-compose.yml`, chmod: false },
+    { url: `${CORE_RAW}/GEMINI.md`, dest: `${WORKSPACE}/GEMINI.md`, chmod: false },
   ];
   for (const file of files) {
     try {
