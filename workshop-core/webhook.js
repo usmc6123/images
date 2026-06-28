@@ -71,6 +71,7 @@ const server = http.createServer((req, res) => {
         -e PORT=4000 \
         -e LEMON_SERVER_URL=http://lemon-server:8080 \
         -e DB_PATH=/data/db/workshop.db \
+        -e NODE_ENV=production \
         -v /mnt/d/HomeServer/workshop-ragnarok/data:/data \
         --restart unless-stopped \
         workshop-ragnarok-workshop-backend:latest`, { timeout: 60000 });
