@@ -20,6 +20,7 @@ services:
       - LEMON_SERVER_URL=http://lemon-server:8080
       - DB_PATH=/data/db/workshop.db
       - NODE_ENV=production
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     volumes:
       - /mnt/d/HomeServer/workshop-ragnarok/data:/data
     depends_on:
