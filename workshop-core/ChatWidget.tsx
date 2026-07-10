@@ -461,4 +461,26 @@ export default function ChatWidget() {
               onKeyDown={(e) => e.key === 'Enter' && send()}
               placeholder="Ask about a job, customer, or the shop…"
               style={{
-                flex: 1, border: '1px solid #ddd', borderRadius: 8, padding: '8px 10p
+                flex: 1, border: '1px solid #ddd', borderRadius: 8, padding: '8px 10px',
+                fontSize: 13, outline: 'none', color: '#23272f',
+              }}
+            />
+            <button
+              onClick={send}
+              disabled={loading}
+              style={{
+                background: '#1a1d24', color: '#fff', border: 'none', borderRadius: 8,
+                padding: '0 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                opacity: loading ? 0.6 : 1,
+              }}
+            >
+              Send
+            </button>
+          </div>
+        </div>
+      )}
+
+      {lightboxUrl && <ImageLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />}
+    </>
+  );
+}
