@@ -1,6 +1,10 @@
 # Stage 1: Build the React frontend
 FROM node:18-slim AS frontend-builder
 WORKDIR /app
+# Upgrade npm - the version bundled with node:18-slim has a known bug
+# (npm/cli#4828) that can fail to install platform-specific native
+# optional dependencies (e.g. @tailwindcss/oxide's native binding).
+RUN npm install -g npm@latest
 COPY package*.json ./
 RUN npm install
 COPY . .
@@ -37,13 +41,4 @@ COPY backend/middleware ./middleware
 # Copy compiled frontend from Stage 1 into backend's public folder
 COPY --from=frontend-builder /app/dist ./dist
 
-# Set default environment configuration
-ENV PORT=4000
-ENV LEMON_SERVER_URL=http://lemon-server:8080
-ENV DB_PATH=/data/db/workshop.db
-
-# Expose API and frontend static file server port
-EXPOSE 4000
-
-# Start Express server
-CMD [ "node", "server.js" ]
+# Set default
