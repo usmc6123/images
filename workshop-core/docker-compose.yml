@@ -27,7 +27,7 @@ services:
       - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
       - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
       - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
-      - JWT_SECRET=
+      - JWT_SECRET=${JWT_SECRET}
     volumes:
       - /mnt/d/HomeServer/workshop-ragnarok/data:/data
     depends_on:
